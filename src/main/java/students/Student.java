@@ -38,4 +38,12 @@ public class Student {
         ", courses=" + courses +
         '}';
   }
+
+  // "closure" promotes the method local variable (which short lifetime)
+  // effectively into a read-only member of the "object" that is the lambda
+  // closure-captured variables must be final, or effectively final
+  public static StudentCriterion getSmartCriterion(/*final */double threshold) {
+//    threshold++;
+    return s -> s.gpa > threshold;
+  }
 }

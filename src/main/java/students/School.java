@@ -4,8 +4,38 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+interface Criterion<E> {
+  boolean test(Student s);
+  default Criterion<E> negate() {
+    return s -> !this.test(s);
+  }
+  default Criterion<E> or(Criterion<E> second) {
+    return s -> this.test(s) || second.test(s);
+  }
+  static <E> Criterion<E> negate(Criterion<E> crit) {
+    return s -> !crit.test(s);
+  }
+  static <E> Criterion<E> or(
+      Criterion<E> first, Criterion<E> second) {
+    return s -> first.test(s) || second.test(s);
+  }
+}
+
 interface StudentCriterion {
   boolean test(Student s);
+  default StudentCriterion negate() {
+    return s -> !this.test(s);
+  }
+  default StudentCriterion or(StudentCriterion second) {
+    return s -> this.test(s) || second.test(s);
+  }
+  static StudentCriterion negate(StudentCriterion crit) {
+    return s -> !crit.test(s);
+  }
+  static StudentCriterion or(
+      StudentCriterion first, StudentCriterion second) {
+    return s -> first.test(s) || second.test(s);
+  }
 }
 
 class SmartStudentCriterion implements StudentCriterion {
@@ -43,6 +73,17 @@ public class School {
     return rv;
   }
 
+  public static List<Student> getByPredicate(
+      List<Student> ls, Criterion<Student> crit) {
+    List<Student> rv = new ArrayList<>();
+    for (Student s : ls) {
+      if (crit.test(s)) { // NOT crit(s) !!!! Lambdas create object instances
+        rv.add(s);
+      }
+    }
+    return rv;
+  }
+
   //  public static List<Student> getSmart(List<Student> ls, double threshold) {
 //    List<Student> rv = new ArrayList<>();
 //    for(Student s : ls) {
@@ -71,8 +112,8 @@ public class School {
             "Physics", "Astrophysics", "Quantum Mechanics")
     );
     printStudents(school);
-//    printStudents(getSmart(school, 3));
-//    printStudents(getEnthusiastic(school, 2));
+//    printThings(getSmart(school, 3));
+//    printThings(getEnthusiastic(school, 2));
 
     printStudents(getByCriterion(school, new SmartStudentCriterion()));
     printStudents(getByCriterion(school, new EnthusiasticStudentCriterion()));
@@ -121,5 +162,38 @@ public class School {
 
     printStudents(getByCriterion(school, s -> s.getGpa() < 3));
 
+    StudentCriterion smart = s -> s.getGpa() > 3;
+    System.out.println("Name of class of smart is "
+        + smart.getClass().getName());
+    System.out.println("smart instaceof StudentCriterion "
+        + ( smart instanceof StudentCriterion));
+
+    // "Normal Cast"
+    Object o = "Hello";
+    String st = (String)o;
+    // cast can take the place of "unambiguous context"
+    Object smartObject = (StudentCriterion)(s -> s.getGpa() > 3);
+//
+//    StudentCriterion notSmart = s -> s.getGpa() <= 3;
+//
+//
+//    StudentCriterion extremesSmart = s -> s.getGpa() > 3.5 || s.getGpa() <= 3;
+
+
+//    StudentCriterion notSmart =
+//        StudentCriterion.negate(Student.getSmartCriterion(2.9));
+    StudentCriterion notSmart =
+        Student.getSmartCriterion(2.9).negate();
+    StudentCriterion fairlySmart = s -> s.getGpa() > 3.5;
+//    StudentCriterion fairlySmartOrNotSmart =
+//        StudentCriterion.or(fairlySmart, notSmart);
+    StudentCriterion fairlySmartOrNotSmart =
+        fairlySmart.or(notSmart);
+    printStudents(getByCriterion(school, fairlySmartOrNotSmart));
+    printStudents(getByCriterion(school,
+        fairlySmartOrNotSmart.negate()));
+
+    printStudents(getByPredicate(school,
+        (s -> s.getGpa() > 3.5)));
   }
 }
