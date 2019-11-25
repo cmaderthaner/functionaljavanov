@@ -15,7 +15,7 @@ public class School2 {
   }
 
   public static <E> List<E> getByPredicate(
-      List<E> ls, Predicate<E> crit) {
+      Iterable<E> ls, Predicate<E> crit) {
     List<E> rv = new ArrayList<>();
     for (E s : ls) {
       if (crit.test(s)) {
