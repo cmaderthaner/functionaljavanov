@@ -40,6 +40,12 @@ public class SuperIterable<E> implements Iterable<E> {
     return new SuperIterable(results);
   }
 
+  public <F> SuperIterable<F>  flatMap(Function<E, SuperIterable<F>> op) {
+    List<F> results = new ArrayList<>();
+    self.forEach(e -> op.apply(e).forEach(f -> results.add(f)));
+    return new SuperIterable(results);
+  }
+
   @Override
   public Iterator<E> iterator() {
     return self.iterator();
