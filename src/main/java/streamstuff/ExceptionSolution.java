@@ -12,7 +12,6 @@ interface ExFunction<A, B> {
 }
 
 public class ExceptionSolution {
-
   public static <A, B> Function<A, Optional<B>> wrap(ExFunction<A, B> op) {
     return a -> {
       try {

@@ -11,14 +11,15 @@ public class UseSuperIterable {
         Arrays.asList("Fred", "Jim", "Sheila")
     );
 
-    sis.forEach(s -> System.out.println(s));
+//    sis.forEach(s -> System.out.println(s));
+    sis.forEach(System.out::println);
 //    for (String s : sis) {
 //      System.out.println("> " + s);
 //    }
     System.out.println("----------------------");
 
     sis
-        .filter(s -> s.length() < 6)
+        .filter(s -> s.length() < 6) // NO method ref possible
         .forEach(s -> System.out.println(s));
 
     List<Student> roster =         Arrays.asList(
